@@ -8,16 +8,6 @@ package model;
  *
  * @author MWG
  */
-public abstract class BaseModel {
-    //id for all id
-    private int id;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+public class Department extends BaseModel{
     
 }
