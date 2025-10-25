@@ -8,7 +8,7 @@ package model;
  *
  * @author MWG
  */
-public class Employee {
+public class Employee extends BaseModel{
     private String name;
     private Department dept;  // quan he voi phong ban
     private Employee supervisor; // quan he tu tham chieu 
