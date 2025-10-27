@@ -6,7 +6,7 @@ package model.iam;
 
 import java.util.ArrayList;
 import model.BaseModel;
-import model.Employee;
+import model.core.Employee;
 
 /**
  *
