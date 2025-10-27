@@ -2,9 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package model;
+package model.leave;
 
+import java.sql.Timestamp;
+import model.core.Employee;
 import java.util.Date;
+import model.BaseModel;
 
 /**
  *
@@ -12,7 +15,7 @@ import java.util.Date;
  */
 public class RequestForLeave extends BaseModel{
     private Employee created_by;
-    private java.util.Date created_time;
+    private java.sql.Timestamp created_time;
     private java.sql.Date from;
     private java.sql.Date to;
     private String reason;
@@ -31,9 +34,10 @@ public class RequestForLeave extends BaseModel{
         return created_time;
     }
 
-    public void setCreated_time(Date created_time) {
+    public void setCreated_time(Timestamp created_time) {
         this.created_time = created_time;
     }
+
 
     public java.sql.Date getFrom() {
         return from;
