@@ -20,13 +20,13 @@ public class RoleDBContext extends DBContext<Role> {
     public ArrayList<Role> getByUserId(int id) {
         ArrayList<Role> roles = new ArrayList<>();
         try {
-            String sql = """
-                                     SELECT r.rid,r.rname,f.fid,f.url
-                                     FROM [User] u INNER JOIN [UserRole] ur ON u.uid = ur.uid
-                                     \t\t\t\t\t\tINNER JOIN [Role] r ON r.rid = ur.rid
-                                     \t\t\t\t\t\tINNER JOIN [RoleFeature] rf ON rf.rid = r.rid
-                                     \t\t\t\t\t\tINNER JOIN [Feature] f ON f.fid = rf.fid
-                                     \t\t\t\t\t\tWHERE u.uid = ?""";
+            String sql =
+                    "SELECT r.rid, r.rname, f.fid, f.url " +
+                    "FROM [User] u INNER JOIN [UserRole] ur ON u.uid = ur.uid " +
+                    "INNER JOIN [Role] r ON r.rid = ur.rid " +
+                    "INNER JOIN [RoleFeature] rf ON rf.rid = r.rid " +
+                    "INNER JOIN [Feature] f ON f.fid = rf.fid " +
+                    "WHERE u.uid = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();
@@ -37,7 +37,7 @@ public class RoleDBContext extends DBContext<Role> {
                 int rid = rs.getInt("rid");
                 if(rid != current.getId()){
                     current = new Role();
-                    current.setId(id);
+                    current.setId(rid);
                     current.setName(rs.getString("rname"));
                     roles.add(current);
                 }
@@ -58,12 +58,12 @@ public class RoleDBContext extends DBContext<Role> {
     public ArrayList<Role> list() {
         ArrayList<Role> roles = new ArrayList<>();
         try {
-            String sql = """
-                         SELECT r.rid,r.rname,f.fid,f.url
-                         FROM [Role] r 
-                         LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid
-                         LEFT JOIN [Feature] f ON f.fid = rf.fid
-                         ORDER BY r.rid""";
+            String sql =
+                    "SELECT r.rid, r.rname, f.fid, f.url " +
+                    "FROM [Role] r " +
+                    "LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid " +
+                    "LEFT JOIN [Feature] f ON f.fid = rf.fid " +
+                    "ORDER BY r.rid";
             PreparedStatement stm = connection.prepareStatement(sql);
             ResultSet rs = stm.executeQuery();
             Role current = null;
@@ -94,12 +94,12 @@ public class RoleDBContext extends DBContext<Role> {
     @Override
     public Role get(int id) {
         try {
-            String sql = """
-                         SELECT r.rid,r.rname,f.fid,f.url
-                         FROM [Role] r 
-                         LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid
-                         LEFT JOIN [Feature] f ON f.fid = rf.fid
-                         WHERE r.rid = ?""";
+            String sql =
+                    "SELECT r.rid, r.rname, f.fid, f.url " +
+                    "FROM [Role] r " +
+                    "LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid " +
+                    "LEFT JOIN [Feature] f ON f.fid = rf.fid " +
+                    "WHERE r.rid = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();
