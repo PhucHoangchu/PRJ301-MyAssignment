@@ -13,7 +13,8 @@ import model.BaseModel;
  *
  * @author MWG
  */
-public class RequestForLeave extends BaseModel{
+public class RequestForLeave extends BaseModel {
+
     private Employee created_by;
     private java.sql.Timestamp created_time;
     private java.sql.Date from;
@@ -37,7 +38,6 @@ public class RequestForLeave extends BaseModel{
     public void setCreated_time(Timestamp created_time) {
         this.created_time = created_time;
     }
-
 
     public java.sql.Date getFrom() {
         return from;
@@ -68,7 +68,7 @@ public class RequestForLeave extends BaseModel{
     }
 
     public void setStatus(int status) {
-        this.status = status;
+        this.status = status; 
     }
 
     public Employee getProcessed_by() {
@@ -78,6 +78,21 @@ public class RequestForLeave extends BaseModel{
     public void setProcessed_by(Employee processed_by) {
         this.processed_by = processed_by;
     }
-    
-    
+
+    public boolean isValidDateRange() {
+        return from != null && to != null && !from.after(to);
+    }
+
+    public boolean isPending() {
+        return status == 0; 
+    }
+
+    public boolean isApproved() {
+        return status == 1;
+    }
+
+    public boolean isRejected() {
+        return status == 2;
+    }
+
 }
