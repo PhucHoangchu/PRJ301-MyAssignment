@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+         
+    
+    
+    <!-- Login Servlet Mapping -->
+    <servlet>
+        <servlet-name>LoginController</servlet-name>
+        <servlet-class>controller.iam.LoginController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginController</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Logout Servlet Mapping -->
+    <servlet>
+        <servlet-name>LogoutController</servlet-name>
+        <servlet-class>controller.iam.LogoutController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutController</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Home Servlet Mapping -->
+    <servlet>
+        <servlet-name>HomeController</servlet-name>
+        <servlet-class>controller.home.HomeController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HomeController</servlet-name>
+        <url-pattern>/home</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Request Servlets Mapping -->
+    <servlet>
+        <servlet-name>CreateRequestController</servlet-name>
+        <servlet-class>controller.request.CreateController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateRequestController</servlet-name>
+        <url-pattern>/request/create</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>ListRequestController</servlet-name>
+        <servlet-class>controller.request.ListController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ListRequestController</servlet-name>
+        <url-pattern>/request/list</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>ReviewRequestController</servlet-name>
+        <servlet-class>controller.request.ReviewController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReviewRequestController</servlet-name>
+        <url-pattern>/request/review</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Division Servlet Mapping -->
+    <servlet>
+        <servlet-name>ViewAgendaController</servlet-name>
+        <servlet-class>controller.division.ViewAgendaController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViewAgendaController</servlet-name>
+        <url-pattern>/division/agenda</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Welcome File List -->
+    <welcome-file-list>
+        <welcome-file>home</welcome-file>
+    </welcome-file-list>
+    
+    <!-- Session Configuration -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+</web-app>
