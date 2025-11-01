@@ -4,13 +4,12 @@
  */
 package dal;
 
-import com.oracle.wls.shaded.org.apache.bcel.generic.Type;
 import java.util.ArrayList;
 import model.iam.User;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import model.Employee;
+import model.core.Employee;
 
 /**
  *
@@ -20,18 +19,11 @@ public class UserDBContext extends DBContext<User> {
 
     public User get(String username, String password) {
         try {
-            String sql = """
-                                     SELECT
-                                     u.uid,
-                                     u.username,
-                                     u.displayname,
-                                     e.eid,
-                                     e.ename
-                                     FROM [User] u INNER JOIN [Enrollment] en ON u.[uid] = en.[uid]
-                                     \t\t\t\t\tINNER JOIN [Employee] e ON e.eid = en.eid
-                                     \t\t\t\t\tWHERE
-                                     \t\t\t\t\tu.username = ? AND u.[password] = ?
-                                     \t\t\t\t\tAND en.active = 1""";
+            String sql =
+                    "SELECT u.uid, u.username, u.displayname, e.eid, e.ename " +
+                    "FROM [User] u INNER JOIN [Enrollment] en ON u.[uid] = en.[uid] " +
+                    "INNER JOIN [Employee] e ON e.eid = en.eid " +
+                    "WHERE u.username = ? AND u.[password] = ? AND en.active = 1";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setString(1, username);
             stm.setString(2, password);
@@ -60,16 +52,11 @@ public class UserDBContext extends DBContext<User> {
     public ArrayList<User> list() {
         ArrayList<User> users = new ArrayList<>();
         try {
-            String sql = """
-                         SELECT
-                         u.uid,
-                         u.username,
-                         u.displayname,
-                         e.eid,
-                         e.ename
-                         FROM [User] u 
-                         LEFT JOIN [Enrollment] en ON u.[uid] = en.[uid] AND en.active = 1
-                         LEFT JOIN [Employee] e ON e.eid = en.eid""";
+            String sql =
+                    "SELECT u.uid, u.username, u.displayname, e.eid, e.ename " +
+                    "FROM [User] u " +
+                    "LEFT JOIN [Enrollment] en ON u.[uid] = en.[uid] AND en.active = 1 " +
+                    "LEFT JOIN [Employee] e ON e.eid = en.eid";
             PreparedStatement stm = connection.prepareStatement(sql);
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
@@ -97,17 +84,12 @@ public class UserDBContext extends DBContext<User> {
     @Override
     public User get(int id) {
         try {
-            String sql = """
-                         SELECT
-                         u.uid,
-                         u.username,
-                         u.displayname,
-                         e.eid,
-                         e.ename
-                         FROM [User] u 
-                         LEFT JOIN [Enrollment] en ON u.[uid] = en.[uid] AND en.active = 1
-                         LEFT JOIN [Employee] e ON e.eid = en.eid
-                         WHERE u.uid = ?""";
+            String sql =
+                    "SELECT u.uid, u.username, u.displayname, e.eid, e.ename " +
+                    "FROM [User] u " +
+                    "LEFT JOIN [Enrollment] en ON u.[uid] = en.[uid] AND en.active = 1 " +
+                    "LEFT JOIN [Employee] e ON e.eid = en.eid " +
+                    "WHERE u.uid = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();
@@ -140,7 +122,7 @@ public class UserDBContext extends DBContext<User> {
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, model.getId());
             stm.setString(2, model.getUsername());
-            stm.setString(3, "123"); // Password nên được xử lý riêng, tạm hardcode
+            stm.setString(3, model.getPassword()); // Sử dụng password từ model
             stm.setString(4, model.getDisplayname());
             stm.executeUpdate();
         } catch (SQLException ex) {
