@@ -27,21 +27,27 @@ public abstract class BaseRequiredAuthenticationController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
         if (isAuthenticate(req)) {
             //exec, authenticate -->user
             User u = (User) req.getSession().getAttribute("auth");
             doPost(req, resp, u);
+        }else{
+            resp.sendRedirect(req.getContextPath() + "/login");
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
         if (isAuthenticate(req)) {
             //do business
             User u = (User) req.getSession().getAttribute("auth");
             doGet(req, resp, u);
         }else{
-            resp.getWriter().println("access denied");
+            resp.sendRedirect(req.getContextPath() + "/login");
         }
     }
 }
