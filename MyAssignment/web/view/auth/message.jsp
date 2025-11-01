@@ -15,3 +15,13 @@
         <span id="message">${requestScope.message}</span>
     </body>
 </html>
+
+<!-- CSS -->
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/responsive.css">
+
+<!-- JavaScript -->
+<script src="../js/main.js"></script>
+<script src="../js/form-validation.js"></script>
+<script src="../js/dashboard.js"></script>
