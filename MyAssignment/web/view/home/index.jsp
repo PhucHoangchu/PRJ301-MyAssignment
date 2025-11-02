@@ -148,6 +148,7 @@
                 <thead>
                     <tr>
                         <th><i class="fas fa-user"></i> Created By</th>
+                        <th><i class="fas fa-tags"></i> Loại nghỉ phép</th>
                         <th><i class="fas fa-calendar"></i> From</th>
                         <th><i class="fas fa-calendar"></i> To</th>
                         <th><i class="fas fa-comment"></i> Reason</th>
@@ -183,6 +184,57 @@
                     %>
                     <tr class="request-row" data-status="<%= rfl.getStatus() %>" data-request-id="<%= rfl.getId() %>">
                         <td><%= rfl.getCreated_by() != null && rfl.getCreated_by().getName() != null ? rfl.getCreated_by().getName() : "N/A" %></td>
+                        <td>
+                            <% 
+                            String leaveType = rfl.getLeaveType();
+                            String leaveTypeDisplay = "";
+                            String leaveTypeIcon = "";
+                            String leaveTypeColor = "";
+                            
+                            if (leaveType == null || leaveType.isEmpty()) leaveType = "annual";
+                            
+                            switch (leaveType.toLowerCase()) {
+                                case "annual":
+                                    leaveTypeDisplay = "Nghỉ phép năm";
+                                    leaveTypeIcon = "🏖️";
+                                    leaveTypeColor = "#06b6d4";
+                                    break;
+                                case "sick":
+                                    leaveTypeDisplay = "Nghỉ ốm";
+                                    leaveTypeIcon = "🏥";
+                                    leaveTypeColor = "#ef4444";
+                                    break;
+                                case "personal":
+                                    leaveTypeDisplay = "Việc riêng";
+                                    leaveTypeIcon = "👤";
+                                    leaveTypeColor = "#8b5cf6";
+                                    break;
+                                case "unpaid":
+                                    leaveTypeDisplay = "Nghỉ không lương";
+                                    leaveTypeIcon = "💼";
+                                    leaveTypeColor = "#6b7280";
+                                    break;
+                                case "maternity":
+                                    leaveTypeDisplay = "Nghỉ thai sản";
+                                    leaveTypeIcon = "👶";
+                                    leaveTypeColor = "#ec4899";
+                                    break;
+                                case "paternity":
+                                    leaveTypeDisplay = "Nghỉ chăm sóc con";
+                                    leaveTypeIcon = "👨‍👩‍👦";
+                                    leaveTypeColor = "#3b82f6";
+                                    break;
+                                default:
+                                    leaveTypeDisplay = "Khác";
+                                    leaveTypeIcon = "📝";
+                                    leaveTypeColor = "#94a3b8";
+                            }
+                            %>
+                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: <%= leaveTypeColor %>15; color: <%= leaveTypeColor %>; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                                <span style="font-size: 1rem;"><%= leaveTypeIcon %></span>
+                                <%= leaveTypeDisplay %>
+                            </span>
+                        </td>
                         <td><%= rfl.getFrom() %></td>
                         <td><%= rfl.getTo() %></td>
                         <td><%= rfl.getReason() %></td>
@@ -199,7 +251,7 @@
                     } else {
                     %>
                     <tr>
-                        <td colspan="6" class="text-center">
+                        <td colspan="7" class="text-center">
                             <div class="empty-state">
                                 <i class="fas fa-inbox empty-state-icon"></i>
                                 <h4 class="empty-state-title">No requests found</h4>
