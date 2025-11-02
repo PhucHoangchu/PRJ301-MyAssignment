@@ -121,6 +121,35 @@
                 </div>
             </div>
 
+            <div class="form-field" style="margin-bottom: 24px;">
+                <label for="leave_type" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">
+                    <i class="fas fa-tags" style="color: #8b5cf6;"></i>
+                    Loại nghỉ phép <span style="color: var(--danger-color);">*</span>
+                </label>
+                <div style="position: relative;">
+                    <select 
+                        id="leave_type" 
+                        name="leave_type" 
+                        required
+                        style="width: 100%; padding: 14px 16px; padding-left: 44px; border: 2px solid var(--border-color); border-radius: var(--border-radius-sm); font-size: 15px; transition: all 0.3s ease; background: white; cursor: pointer; appearance: none;"
+                    >
+                        <option value="">-- Chọn loại nghỉ phép --</option>
+                        <option value="annual">🏖️ Nghỉ phép năm</option>
+                        <option value="sick">🏥 Nghỉ ốm</option>
+                        <option value="personal">👤 Việc riêng</option>
+                        <option value="unpaid">💼 Nghỉ không lương</option>
+                        <option value="maternity">👶 Nghỉ thai sản</option>
+                        <option value="paternity">👨‍👩‍👦 Nghỉ chăm sóc con</option>
+                        <option value="other">📝 Khác</option>
+                    </select>
+                    <i class="fas fa-tags" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none;"></i>
+                    <i class="fas fa-chevron-down" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none;"></i>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">
+                    <i class="fas fa-info-circle"></i> Vui lòng chọn loại nghỉ phép phù hợp
+                </div>
+            </div>
+
             <div class="form-field" style="margin-bottom: 28px;">
                 <label for="reason" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">
                     <i class="fas fa-comment-alt" style="color: #f59e0b;"></i>
@@ -169,14 +198,16 @@
 }
 
 .form-field input:focus,
-.form-field textarea:focus {
+.form-field textarea:focus,
+.form-field select:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
 .form-field input:hover,
-.form-field textarea:hover {
+.form-field textarea:hover,
+.form-field select:hover {
     border-color: #cbd5e0;
 }
 
