@@ -29,10 +29,11 @@ public class CreateController extends BaseRequiredAuthorizationController {
             String fromStr = req.getParameter("from");
             String toStr = req.getParameter("to");
             String reason = req.getParameter("reason");
+            String leaveType = req.getParameter("leave_type");
 
             // Validation
-            if (fromStr == null || toStr == null || reason == null
-                    || fromStr.trim().isEmpty() || toStr.trim().isEmpty() || reason.trim().isEmpty()) {
+            if (fromStr == null || toStr == null || reason == null || leaveType == null
+                    || fromStr.trim().isEmpty() || toStr.trim().isEmpty() || reason.trim().isEmpty() || leaveType.trim().isEmpty()) {
                 req.setAttribute("error", "Vui lòng điền đầy đủ thông tin");
                 req.getRequestDispatcher("/view/request/create.jsp").forward(req, resp);
                 return;
@@ -57,6 +58,21 @@ public class CreateController extends BaseRequiredAuthorizationController {
                 return;
             }
 
+            // Validate leave_type value
+            String[] validTypes = {"annual", "sick", "personal", "unpaid", "maternity", "paternity", "other"};
+            boolean isValidType = false;
+            for (String type : validTypes) {
+                if (type.equals(leaveType.trim())) {
+                    isValidType = true;
+                    break;
+                }
+            }
+            if (!isValidType) {
+                req.setAttribute("error", "Loại nghỉ phép không hợp lệ");
+                req.getRequestDispatcher("/view/request/create.jsp").forward(req, resp);
+                return;
+            }
+
             // Set created_by employee
             Employee employee = user.getEmployee();
             if (employee == null) {
@@ -76,6 +92,7 @@ public class CreateController extends BaseRequiredAuthorizationController {
             rfl.setFrom(from);
             rfl.setTo(to);
             rfl.setReason(reason.trim());
+            rfl.setLeaveType(leaveType.trim());
             rfl.setStatus(0); // Pending
             rfl.setCreated_time(new Timestamp(System.currentTimeMillis()));
             rfl.setCreated_by(employee);
