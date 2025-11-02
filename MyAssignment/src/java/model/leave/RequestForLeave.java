@@ -22,6 +22,7 @@ public class RequestForLeave extends BaseModel {
     private String reason;
     private int status;
     private Employee processed_by;
+    private String leaveType;
 
     public Employee getCreated_by() {
         return created_by;
@@ -93,6 +94,38 @@ public class RequestForLeave extends BaseModel {
 
     public boolean isRejected() {
         return status == 2;
+    }
+
+    public String getLeaveType() {
+        return leaveType;
+    }
+
+    public void setLeaveType(String leaveType) {
+        this.leaveType = leaveType;
+    }
+
+    public String getLeaveTypeDisplayName() {
+        if (leaveType == null || leaveType.isEmpty()) {
+            return "Nghỉ phép năm";
+        }
+        switch (leaveType.toLowerCase()) {
+            case "annual": 
+                return "Nghỉ phép năm";
+            case "sick": 
+                return "Nghỉ ốm";
+            case "personal": 
+                return "Việc riêng";
+            case "unpaid": 
+                return "Nghỉ không lương";
+            case "maternity": 
+                return "Nghỉ thai sản";
+            case "paternity": 
+                return "Nghỉ chăm sóc con";
+            case "other": 
+                return "Khác";
+            default: 
+                return "Nghỉ phép năm";
+        }
     }
 
 }
