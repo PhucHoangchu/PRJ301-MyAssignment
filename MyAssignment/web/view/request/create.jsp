@@ -9,9 +9,8 @@
     <div>
         <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
             <i class="fas fa-file-alt" style="color: #667eea;"></i>
-            Đơn xin nghỉ phép
+            Tạo đơn xin nghỉ phép mới
         </h1>
-        <p style="color: var(--text-secondary); margin: 0;">Tạo đơn xin nghỉ phép mới</p>
     </div>
 </div>
 
