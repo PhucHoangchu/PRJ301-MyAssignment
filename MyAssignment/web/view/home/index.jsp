@@ -283,7 +283,6 @@
 }
 
 .dashboard-header {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     color: white;
     padding: 40px 0;
     margin-bottom: 30px;
