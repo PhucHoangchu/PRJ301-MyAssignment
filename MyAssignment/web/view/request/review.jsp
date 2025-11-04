@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.leave.RequestForLeave" %>
 <%@page import="java.util.ArrayList" %>
+<%@page import="util.Pagination" %>
 <jsp:include page="../util/header.jsp" />
 
 <!-- Page Header -->
@@ -156,7 +157,77 @@
                         <% } %>
                     </tbody>
                 </table>
+                                </div>
+            
+            <!-- Pagination Controls -->
+            <% 
+            Pagination pagination = (Pagination) request.getAttribute("pagination");
+            if (pagination != null && pagination.getTotalPages() > 1) {
+            %>
+            <div class="pagination-container" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                        Showing <strong><%= pagination.getStartRecord() %></strong> to 
+                        <strong><%= pagination.getEndRecord() %></strong> of 
+                        <strong><%= pagination.getTotalRecords() %></strong> requests
+                    </div>
+                    <div class="pagination" style="display: flex; align-items: center; gap: 8px;">
+                        <% if (pagination.hasPrevious()) { %>
+                            <a href="${pageContext.request.contextPath}/request/review?page=<%= pagination.getCurrentPage() - 1 %>" 
+                               class="pagination-btn" title="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        <% } else { %>
+                            <span class="pagination-btn disabled" title="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                        <% } %>
+                        
+                        <% 
+                        int startPage = Math.max(1, pagination.getCurrentPage() - 2);
+                        int endPage = Math.min(pagination.getTotalPages(), pagination.getCurrentPage() + 2);
+                        
+                        if (startPage > 1) {
+                        %>
+                            <a href="${pageContext.request.contextPath}/request/review?page=1" class="pagination-btn">1</a>
+                            <% if (startPage > 2) { %>
+                                <span class="pagination-ellipsis">...</span>
+                            <% } %>
+                        <% } %>
+                        
+                        <% for (int i = startPage; i <= endPage; i++) { %>
+                            <% if (i == pagination.getCurrentPage()) { %>
+                                <span class="pagination-btn active"><%= i %></span>
+                            <% } else { %>
+                                <a href="${pageContext.request.contextPath}/request/review?page=<%= i %>" class="pagination-btn"><%= i %></a>
+                            <% } %>
+                        <% } %>
+                        
+                        <% if (endPage < pagination.getTotalPages()) { %>
+                            <% if (endPage < pagination.getTotalPages() - 1) { %>
+                                <span class="pagination-ellipsis">...</span>
+                            <% } %>
+                            <a href="${pageContext.request.contextPath}/request/review?page=<%= pagination.getTotalPages() %>" class="pagination-btn"><%= pagination.getTotalPages() %></a>
+                        <% } %>
+                        
+                        <% if (pagination.hasNext()) { %>
+                            <a href="${pageContext.request.contextPath}/request/review?page=<%= pagination.getCurrentPage() + 1 %>" 
+                               class="pagination-btn" title="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        <% } else { %>
+                            <span class="pagination-btn disabled" title="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        <% } %>
+                    </div>
+                </div>
             </div>
+            <% } %>
+            
+            <!-- Summary -->
+            </div>
+                    
             
             <!-- Summary -->
             <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
@@ -335,4 +406,74 @@ tbody tr:hover {
         transform: none;
     }
 }
+
+/* Pagination Styles */
+.pagination-container {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.pagination-btn:hover:not(.disabled):not(.active) {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.pagination-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    cursor: default;
+}
+
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination-ellipsis {
+    padding: 0 8px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .pagination-container > div {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+    
 </style>

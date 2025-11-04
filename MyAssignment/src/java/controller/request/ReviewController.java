@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import model.iam.User;
 import model.iam.Role;
 import model.leave.RequestForLeave;
-
+import util.Pagination;
 /**
  *
  * @author MWG
@@ -86,7 +86,7 @@ public class ReviewController extends BaseRequiredAuthorizationController {
         }
     }
 
-    @Override
+        @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
         try {
             RequestForLeaveDBContex db = new RequestForLeaveDBContex();
@@ -140,6 +140,7 @@ public class ReviewController extends BaseRequiredAuthorizationController {
                 } else {
                     resp.getWriter().write("{\"error\":\"Request not found\"}");
                 }
+                db.closeDBConnection();
                 return;
             }
 
@@ -174,6 +175,7 @@ public class ReviewController extends BaseRequiredAuthorizationController {
             if (user.getEmployee() == null || user.getEmployee().getId() == 0) {
                 req.setAttribute("error", "Thông tin nhân viên không hợp lệ. Vui lòng đăng nhập lại.");
                 req.setAttribute("pendingRequests", new ArrayList<>());
+                db.closeDBConnection();
                 req.getRequestDispatcher("/view/request/review.jsp").forward(req, resp);
                 return;
             }
@@ -190,27 +192,38 @@ public class ReviewController extends BaseRequiredAuthorizationController {
             }
 
             int employeeId = user.getEmployee().getId();
-            ArrayList<RequestForLeave> pendingRequests = new ArrayList<>();
+            
+            // Parse pagination parameters
+            int page = 1;
+            int pageSize = 7; 
+            
+            try {
+                String pageParam = req.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    page = Integer.parseInt(pageParam);
+                }
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+
+            int totalRecords;
+            ArrayList<RequestForLeave> pendingRequests;
             
             if (isITHead) {
                 // IT Head: Lấy TẤT CẢ pending requests (bao gồm cả đơn của chính mình)
-                ArrayList<RequestForLeave> allPendingRequests = db.getByStatus(0);
-                for (RequestForLeave rfl : allPendingRequests) {
-                    if (rfl != null && rfl.getStatus() == 0) {
-                        pendingRequests.add(rfl);
-                    }
-                }
+                totalRecords = db.countByStatus(0);
+                util.Pagination pagination = new util.Pagination(page, pageSize, totalRecords);
+                pendingRequests = db.getByStatusPaginated(0, pagination.getOffset(), pagination.getPageSize());
+                req.setAttribute("pagination", pagination);
             } else {
                 // Các role khác: Chỉ lấy pending requests từ subordinates (không bao gồm đơn của chính mình)
-                ArrayList<RequestForLeave> allSubordinateRequests = db.getByEmployeeAndSubodiaries(employeeId);
-                for (RequestForLeave rfl : allSubordinateRequests) {
-                    if (rfl != null && rfl.getStatus() == 0 && rfl.getCreated_by() != null 
-                            && rfl.getCreated_by().getId() != employeeId) {
-                        pendingRequests.add(rfl);
-                    }
-                }
+                totalRecords = db.countPendingBySubordinates(employeeId);
+                util.Pagination pagination = new util.Pagination(page, pageSize, totalRecords);
+                pendingRequests = db.getPendingBySubordinatesPaginated(employeeId, pagination.getOffset(), pagination.getPageSize());
+                req.setAttribute("pagination", pagination);
             }
             
+            db.closeDBConnection();
             req.setAttribute("pendingRequests", pendingRequests);
             req.getRequestDispatcher("/view/request/review.jsp").forward(req, resp);
 
