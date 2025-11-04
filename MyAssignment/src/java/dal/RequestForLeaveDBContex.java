@@ -473,5 +473,147 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         }
         return rfls;
     }
+    
+
+    /**
+     * COUNT: Đếm tổng số requests của employee và subordinates
+     */
+    public int countByEmployeeAndSubodiaries(int eid) {
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        try {
+            String sql =
+                    "WITH Org AS (" +
+                    "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? " +
+                    "    UNION ALL " +
+                    "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid " +
+                    ") " +
+                    "SELECT COUNT(*) as total " +
+                    "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, eid);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            // Đóng ResultSet và PreparedStatement
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            if (stm != null) {
+                try {
+                    stm.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            // KHÔNG đóng connection ở đây - để dùng lại cho method tiếp theo
+        }
+        return 0;
+    }
+
+    /**
+     * Lấy requests của employee và subordinates với pagination (SQL Server)
+     * @param eid Employee ID
+     * @param offset Số records bỏ qua
+     * @param fetch Số records lấy về
+     */
+    public ArrayList<RequestForLeave> getByEmployeeAndSubodiariesPaginated(int eid, int offset, int fetch) {
+        ArrayList<RequestForLeave> rfls = new ArrayList<>();
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        try {
+            String sql =
+                    "WITH Org AS (" +
+                    "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? " +
+                    "    UNION ALL " +
+                    "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid " +
+                    ") " +
+                    "SELECT " +
+                    "      r.[rid] " +
+                    "    , r.[created_by] " +
+                    "    , e.ename as [created_name] " +
+                    "    , r.[created_time] " +
+                    "    , r.[from] " +
+                    "    , r.[to] " +
+                    "    , r.[reason] " +
+                    "    , r.[status] " +
+                    "    , r.[leave_type] " +
+                    "    , r.[processed_by] " +
+                    "    , p.ename as [processed_name] " +
+                    "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by " +
+                    "LEFT JOIN Employee p ON p.eid = r.processed_by " +
+                    "ORDER BY r.created_time DESC " +
+                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, eid);
+            stm.setInt(2, offset);
+            stm.setInt(3, fetch);
+            rs = stm.executeQuery();
+            while (rs.next()) {
+                RequestForLeave rfl = new RequestForLeave();
+                rfl.setId(rs.getInt("rid"));
+                rfl.setCreated_time(rs.getTimestamp("created_time"));
+                rfl.setFrom(rs.getDate("from"));
+                rfl.setTo(rs.getDate("to"));
+                rfl.setReason(rs.getString("reason"));
+                rfl.setStatus(rs.getInt("status"));
+                rfl.setLeaveType(rs.getString("leave_type"));
+
+                Employee created_by = new Employee();
+                created_by.setId(rs.getInt("created_by"));
+                created_by.setName(rs.getString("created_name"));
+                rfl.setCreated_by(created_by);
+
+                // Fix: Xử lý processed_by đúng cách với NULL
+                if (rs.getObject("processed_by") != null) {
+                    int processed_by_id = rs.getInt("processed_by");
+                    Employee processed_by = new Employee();
+                    processed_by.setId(processed_by_id);
+                    String processed_name = rs.getString("processed_name");
+                    if (processed_name != null) {
+                        processed_by.setName(processed_name);
+                    }
+                    rfl.setProcessed_by(processed_by);
+                }
+                rfls.add(rfl);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            // Đóng ResultSet và PreparedStatement trước
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            if (stm != null) {
+                try {
+                    stm.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            // KHÔNG đóng connection ở đây - để controller đóng sau khi dùng xong
+        }
+        return rfls;
+    }
+    
+    /**
+     * Đóng connection - gọi từ controller sau khi hoàn thành tất cả operations
+     */
+    public void closeDBConnection() {
+        closeConnection();
+    }
 
 }
+
