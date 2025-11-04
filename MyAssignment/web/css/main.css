@@ -695,7 +695,7 @@ tbody tr:hover {
 .footer {
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     color: rgba(255, 255, 255, 0.9);
-    padding: 60px 0 30px;
+    padding: 10px 0 10px;
     margin-top: auto;
     position: relative;
     z-index: 1;
@@ -712,94 +712,13 @@ tbody tr:hover {
     background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
 }
 
-.footer-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 50px;
-    margin-bottom: 40px;
-}
-
-.footer-section h4 {
-    margin-bottom: 20px;
-    color: white;
-    font-size: 1.25rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.footer-section h4::before {
-    content: '';
-    width: 4px;
-    height: 20px;
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-    border-radius: 2px;
-}
-
-.footer-section p {
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.8;
-    font-size: 15px;
-}
-
-.footer-section ul {
-    list-style: none;
-    padding: 0;
-}
-
-.footer-section ul li {
-    margin-bottom: 12px;
-}
-
-.footer-section ul li a {
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    position: relative;
-    font-size: 15px;
-}
-
-.footer-section ul li a i {
-    width: 18px;
-    text-align: center;
-    color: rgba(102, 126, 234, 0.8);
-    transition: all 0.3s ease;
-}
-
-.footer-section ul li a::before {
-    content: '';
-    position: absolute;
-    left: -12px;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.3s ease;
-    border-radius: 1px;
-}
-
-.footer-section ul li a:hover {
-    color: white;
-    padding-left: 12px;
-}
-
-.footer-section ul li a:hover i {
-    color: #667eea;
-    transform: scale(1.15);
-}
-
-.footer-section ul li a:hover::before {
-    width: 6px;
-}
-
 .footer-bottom {
+    display: flex;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 30px;
+    padding-top: 10px;
     text-align: center;
+    align-items: center;
+    justify-content: center;
     color: rgba(255, 255, 255, 0.6);
     font-size: 14px;
     position: relative;
