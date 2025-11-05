@@ -12,7 +12,7 @@
                 <i class="fas fa-check-circle" style="color: #667eea;"></i>
                 Review Leave Requests
             </h1>
-            <p style="color: var(--text-secondary); margin: 0;">Approve or reject pending leave requests</p>
+            <p style="color: var(--text-secondary); margin: 0;">Approve or reject in progress leave requests</p>
         </div>
         <a href="${pageContext.request.contextPath}/home" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i>
@@ -42,7 +42,7 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
             <h3 class="card-title">
                 <i class="fas fa-clock"></i>
-                Pending Requests
+                In progress Requests
             </h3>
             <% 
             ArrayList<RequestForLeave> pendingRequests = (ArrayList<RequestForLeave>) request.getAttribute("pendingRequests");
@@ -51,7 +51,7 @@
             %>
                 <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
                     <i class="fas fa-bell"></i>
-                    <%= pendingCount %> request<%= pendingCount > 1 ? "s" : "" %> pending
+                    <%= pendingCount %> request<%= pendingCount > 1 ? "s" : "" %> in progress
                 </span>
             <% } %>
         </div>
@@ -63,7 +63,7 @@
             <div class="empty-state">
                 <i class="fas fa-check-double empty-state-icon" style="color: #48bb78;"></i>
                 <h4 class="empty-state-title">All caught up!</h4>
-                <p class="empty-state-message">There are no pending requests to review at this time.</p>
+                <p class="empty-state-message">There are no in progress requests to review at this time.</p>
             </div>
         <% } else { %>
             <div class="table-container">
@@ -233,7 +233,7 @@
             <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
                 <div style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
                     <i class="fas fa-info-circle"></i>
-                    <span>Total: <strong style="color: var(--text-primary);"><%= pendingCount %></strong> pending request<%= pendingCount > 1 ? "s" : "" %></span>
+                    <span>Total: <strong style="color: var(--text-primary);"><%= pendingCount %></strong> in progress request<%= pendingCount > 1 ? "s" : "" %></span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; color: #92400e; font-size: 0.9rem; font-weight: 500;">
                     <i class="fas fa-exclamation-triangle"></i>

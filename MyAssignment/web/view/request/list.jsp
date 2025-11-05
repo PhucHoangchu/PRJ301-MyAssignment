@@ -73,7 +73,7 @@
                             switch (rfl.getStatus()) {
                                 case 0: 
                                     statusClass = "status-pending"; 
-                                    statusText = "Pending"; 
+                                    statusText = "In progress"; 
                                     statusIcon = "fas fa-clock";
                                     break;
                                 case 1: 
@@ -276,7 +276,7 @@
                     }
                     %>
                     <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #fef3c7; color: #92400e; border-radius: 20px; font-size: 0.9rem;">
-                        <i class="fas fa-clock"></i> Pending: <strong><%= pendingCount %></strong>
+                        <i class="fas fa-clock"></i> In progress: <strong><%= pendingCount %></strong>
                     </span>
                     <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #d1fae5; color: #065f46; border-radius: 20px; font-size: 0.9rem;">
                         <i class="fas fa-check-circle"></i> Approved: <strong><%= approvedCount %></strong>
@@ -307,6 +307,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .status-badge i {

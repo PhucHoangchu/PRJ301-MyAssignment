@@ -73,7 +73,7 @@
             %></div>
             <div class="stat-label">Total Requests</div>
         </div>
-        <div class="stat-card" data-stat-type="pending" style="cursor: pointer;" title="Click to view pending requests">
+        <div class="stat-card" data-stat-type="pending" style="cursor: pointer;" title="Click to view in progress requests">
             <div class="stat-icon">
                 <i class="fas fa-clock"></i>
             </div>
@@ -91,7 +91,7 @@
                 }
                 out.print(pending != null ? pending.intValue() : 0);
             %></div>
-            <div class="stat-label">Total Pending</div>
+            <div class="stat-label">Total In progress</div>
         </div>
         <div class="stat-card" data-stat-type="approved" style="cursor: pointer;" title="Click to view approved requests">
             <div class="stat-icon">
@@ -167,7 +167,7 @@
                             switch (rfl.getStatus()) {
                                 case 0: 
                                     statusClass = "status-pending"; 
-                                    statusText = "Pending"; 
+                                    statusText = "In progress"; 
                                     statusIcon = "fas fa-clock";
                                     break;
                                 case 1: 
@@ -342,6 +342,19 @@
 
 .text-center {
     text-align: center;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 @media (max-width: 768px) {
