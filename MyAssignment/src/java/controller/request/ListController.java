@@ -27,6 +27,11 @@ public class ListController extends BaseRequiredAuthorizationController {
             return;
         }
         
+        // Tự động reject các đơn pending đã quá ngày nghỉ
+        RequestForLeaveDBContex autoRejectDB = new RequestForLeaveDBContex();
+        autoRejectDB.autoRejectExpiredPendingRequests();
+        autoRejectDB.closeDBConnection();
+        
         // Parse pagination parameters
         int page = 1;
         int pageSize = DEFAULT_PAGE_SIZE;

@@ -244,6 +244,25 @@ public class EmployeeDBContext extends DBContext<Employee> {
         return emps;
     }
 
+    // Kiểm tra xem một employee có phải supervisor của employee khác không
+    public boolean isSupervisorOf(int supervisorId, int subordinateId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM Employee WHERE eid = ? AND supervisorid = ?";
+            PreparedStatement stm = connection.prepareStatement(sql);
+            stm.setInt(1, subordinateId);
+            stm.setInt(2, supervisorId);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            closeConnection();
+        }
+        return false;
+    }
+
     // Hàm helper để tái sử dụng logic map ResultSet
     private Employee mapResultSetToEmployee(ResultSet rs) throws SQLException {
         Employee e = new Employee();

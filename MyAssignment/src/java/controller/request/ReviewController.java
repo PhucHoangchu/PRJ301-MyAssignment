@@ -90,6 +90,9 @@ public class ReviewController extends BaseRequiredAuthorizationController {
     protected void processGet(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
         try {
             RequestForLeaveDBContex db = new RequestForLeaveDBContex();
+            
+            // Tự động reject các đơn pending đã quá ngày nghỉ
+            db.autoRejectExpiredPendingRequests();
 
             String ridParam = req.getParameter("rid");
             String format = req.getParameter("format");

@@ -16,6 +16,7 @@ import model.core.Employee;
 import model.iam.Role;
 import model.iam.User;
 import model.leave.RequestForLeave;
+import util.Pagination;
 
 /**
  *
@@ -32,6 +33,10 @@ public class HomeController extends BaseRequiredAuthenticationController {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
         try {
             RequestForLeaveDBContex requestDB = new RequestForLeaveDBContex();
+            
+            // Tự động reject các đơn pending đã quá ngày nghỉ
+            requestDB.autoRejectExpiredPendingRequests();
+            
             RoleDBContext roleDB = new RoleDBContext();
             
             // Lấy requests theo phạm vi hiển thị
@@ -68,30 +73,45 @@ public class HomeController extends BaseRequiredAuthenticationController {
                 }
             }
 
+            // Parse pagination parameters
+            int page = 1;
+            int pageSize = 7; // Số requests hiển thị mỗi trang
+
+            try {
+                String pageParam = req.getParameter("page");
+                if (pageParam != null && !pageParam.isEmpty()) {
+                    page = Integer.parseInt(pageParam);
+                }
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+
             // Tối ưu: Chỉ query một lần, reuse kết quả
             ArrayList<RequestForLeave> scopeRequests;
             ArrayList<RequestForLeave> myRequests;
+            Pagination pagination = null;
             
+            // Lấy requests của mình với pagination (cho hiển thị Recent Requests)
+            int totalMyRequests = requestDB.countByEmployee(employeeId);
+            pagination = new Pagination(page, pageSize, totalMyRequests);
+            myRequests = requestDB.getByEmployeePaginated(employeeId, pagination.getOffset(), pagination.getPageSize());
+            if (myRequests == null) {
+                myRequests = new ArrayList<>();
+            }
+            
+            // Lấy scopeRequests để tính statistics (phải lấy sau khi đã lấy myRequests để tránh đóng connection sớm)
             if (canReview) {
-                // Nếu có quyền review, lấy cả subordinate requests (bao gồm cả của mình)
+                // Nếu có quyền review, lấy cả subordinate requests (bao gồm cả của mình) để tính statistics
                 scopeRequests = requestDB.getByEmployeeAndSubodiaries(employeeId);
                 if (scopeRequests == null) {
                     scopeRequests = new ArrayList<>();
                 }
-                // Filter ra chỉ requests của mình để hiển thị trong myRequests
-                myRequests = new ArrayList<>();
-                for (RequestForLeave rfl : scopeRequests) {
-                    if (rfl != null && rfl.getCreated_by() != null && rfl.getCreated_by().getId() == employeeId) {
-                        myRequests.add(rfl);
-                    }
-                }
             } else {
-                // Chỉ lấy requests của mình
-                myRequests = requestDB.getByEmployee(employeeId);
-                if (myRequests == null) {
-                    myRequests = new ArrayList<>();
+                // Chỉ lấy requests của mình để tính statistics
+                scopeRequests = requestDB.getByEmployee(employeeId);
+                if (scopeRequests == null) {
+                    scopeRequests = new ArrayList<>();
                 }
-                scopeRequests = myRequests;
             }
 
             // Tính toán thống kê và pending requests trong cùng một loop - tối ưu hơn
@@ -117,11 +137,15 @@ public class HomeController extends BaseRequiredAuthenticationController {
             // Set attributes - đảm bảo luôn set giá trị, kể cả khi có lỗi
             req.setAttribute("user", user);
             req.setAttribute("myRequests", myRequests != null ? myRequests : new ArrayList<>());
+            req.setAttribute("pagination", pagination);
             req.setAttribute("totalRequests", Integer.valueOf(totalRequests));
             req.setAttribute("pendingCount", Integer.valueOf(pendingCount));
             req.setAttribute("approvedCount", Integer.valueOf(approvedCount));
             req.setAttribute("rejectedCount", Integer.valueOf(rejectedCount));
             req.setAttribute("pendingRequests", pendingRequests != null ? pendingRequests : new ArrayList<>());
+            
+            // Đóng connection sau khi hoàn thành tất cả operations
+            requestDB.closeDBConnection();
             
             // Forward đến home page
             req.getRequestDispatcher("/view/home/index.jsp").forward(req, resp);
@@ -134,6 +158,7 @@ public class HomeController extends BaseRequiredAuthenticationController {
             // Set default values nếu có lỗi
             req.setAttribute("user", user);
             req.setAttribute("myRequests", new ArrayList<>());
+            req.setAttribute("pagination", null);
             req.setAttribute("totalRequests", Integer.valueOf(0));
             req.setAttribute("pendingCount", Integer.valueOf(0));
             req.setAttribute("approvedCount", Integer.valueOf(0));
