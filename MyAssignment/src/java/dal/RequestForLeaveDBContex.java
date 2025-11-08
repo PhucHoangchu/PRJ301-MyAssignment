@@ -20,27 +20,28 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public ArrayList<RequestForLeave> getByEmployeeAndSubodiaries(int eid) {
         ArrayList<RequestForLeave> rfls = new ArrayList<>();
         try {
-            String sql =
-                    "WITH Org AS (" +
-                    "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? " +
-                    "    UNION ALL " +
-                    "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid " +
-                    ") " +
-                    "SELECT " +
-                    "      r.[rid] " +
-                    "    , r.[created_by] " +
-                    "    , e.ename as [created_name] " +
-                    "    , r.[created_time] " +
-                    "    , r.[from] " +
-                    "    , r.[to] " +
-                    "    , r.[reason] " +
-                    "    , r.[status] " +
-                    "    , r.[leave_type] " +
-                    "    , r.[processed_by] " +
-                    "    , p.ename as [processed_name] " +
-                    "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by " +
-                    "LEFT JOIN Employee p ON p.eid = r.processed_by " +
-                    "ORDER BY r.created_time DESC";
+            String sql
+                    = "WITH Org AS ("
+                    + "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? "
+                    + "    UNION ALL "
+                    + "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid "
+                    + ") "
+                    + "SELECT "
+                    + "      r.[rid] "
+                    + "    , r.[created_by] "
+                    + "    , e.ename as [created_name] "
+                    + "    , r.[created_time] "
+                    + "    , r.[from] "
+                    + "    , r.[to] "
+                    + "    , r.[reason] "
+                    + "    , r.[status] "
+                    + "    , r.[leave_type] "
+                    + "    , r.[processed_by] "
+                    + "    , p.ename as [processed_name] "
+                    + "    , r.[cancel_note] "
+                    + "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by "
+                    + "LEFT JOIN Employee p ON p.eid = r.processed_by "
+                    + "ORDER BY r.created_time DESC";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, eid);
             ResultSet rs = stm.executeQuery();
@@ -53,6 +54,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
                 rfl.setReason(rs.getString("reason"));
                 rfl.setStatus(rs.getInt("status"));
                 rfl.setLeaveType(rs.getString("leave_type"));
+                rfl.setCancelNote(rs.getString("cancel_note"));
 
                 Employee created_by = new Employee();
                 created_by.setId(rs.getInt("created_by"));
@@ -80,23 +82,24 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public ArrayList<RequestForLeave> getByDivision(int divisionId) {
         ArrayList<RequestForLeave> rfls = new ArrayList<>();
         try {
-            String sql =
-                    "SELECT " +
-                    "      r.[rid] " +
-                    "    , r.[created_by] " +
-                    "    , e.ename as [created_name] " +
-                    "    , r.[created_time] " +
-                    "    , r.[from] " +
-                    "    , r.[to] " +
-                    "    , r.[reason] " +
-                    "    , r.[status] " +
-                    "    , r.[leave_type] " +
-                    "    , r.[processed_by] " +
-                    "    , p.ename as [processed_name] " +
-                    "FROM [RequestForLeave] r " +
-                    "INNER JOIN Employee e ON e.eid = r.created_by " +
-                    "LEFT JOIN Employee p ON p.eid = r.processed_by " +
-                    "WHERE e.did = ?";
+            String sql
+                    = "SELECT "
+                    + "      r.[rid] "
+                    + "    , r.[created_by] "
+                    + "    , e.ename as [created_name] "
+                    + "    , r.[created_time] "
+                    + "    , r.[from] "
+                    + "    , r.[to] "
+                    + "    , r.[reason] "
+                    + "    , r.[status] "
+                    + "    , r.[leave_type] "
+                    + "    , r.[processed_by] "
+                    + "    , p.ename as [processed_name] "
+                    + "    , r.[cancel_note] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e ON e.eid = r.created_by "
+                    + "LEFT JOIN Employee p ON p.eid = r.processed_by "
+                    + "WHERE e.did = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, divisionId);
             ResultSet rs = stm.executeQuery();
@@ -109,6 +112,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
                 rfl.setReason(rs.getString("reason"));
                 rfl.setStatus(rs.getInt("status"));
                 rfl.setLeaveType(rs.getString("leave_type"));
+                rfl.setCancelNote(rs.getString("cancel_note"));
 
                 Employee created_by = new Employee();
                 created_by.setId(rs.getInt("created_by"));
@@ -136,23 +140,23 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public ArrayList<RequestForLeave> list() {
         ArrayList<RequestForLeave> rfls = new ArrayList<>();
         try {
-            String sql =
-                    "SELECT " +
-                    "      r.[rid] " +
-                    "    , r.[created_by] " +
-                    "    , e_created.ename as [created_name] " +
-                    "    , r.[created_time] " +
-                    "    , r.[from] " +
-                    "    , r.[to] " +
-                    "    , r.[reason] " +
-                    "    , r.[status] " +
-                    "    , r.[leave_type] " +
-                    "    , r.[processed_by] " +
-                    "    , e_processed.ename as [processed_name] " +
-                    "FROM [RequestForLeave] r " +
-                    "INNER JOIN Employee e_created ON e_created.eid = r.created_by " +
-                    "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by " +
-                    "ORDER BY r.created_time DESC";
+            String sql
+                    = "SELECT "
+                    + "      r.[rid] "
+                    + "    , r.[created_by] "
+                    + "    , e_created.ename as [created_name] "
+                    + "    , r.[created_time] "
+                    + "    , r.[from] "
+                    + "    , r.[to] "
+                    + "    , r.[reason] "
+                    + "    , r.[status] "
+                    + "    , r.[leave_type] "
+                    + "    , r.[processed_by] "
+                    + "    , e_processed.ename as [processed_name] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e_created ON e_created.eid = r.created_by "
+                    + "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by "
+                    + "ORDER BY r.created_time DESC";
             PreparedStatement stm = connection.prepareStatement(sql);
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
@@ -189,23 +193,24 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     @Override
     public RequestForLeave get(int id) {
         try {
-            String sql =
-                    "SELECT " +
-                    "      r.[rid] " +
-                    "    , r.[created_by] " +
-                    "    , e_created.ename as [created_name] " +
-                    "    , r.[created_time] " +
-                    "    , r.[from] " +
-                    "    , r.[to] " +
-                    "    , r.[reason] " +
-                    "    , r.[status] " +
-                    "    , r.[leave_type] " +
-                    "    , r.[processed_by] " +
-                    "    , e_processed.ename as [processed_name] " +
-                    "FROM [RequestForLeave] r " +
-                    "INNER JOIN Employee e_created ON e_created.eid = r.created_by " +
-                    "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by " +
-                    "WHERE r.rid = ?";
+            String sql
+                    = "SELECT "
+                    + "      r.[rid] "
+                    + "    , r.[created_by] "
+                    + "    , e_created.ename as [created_name] "
+                    + "    , r.[created_time] "
+                    + "    , r.[from] "
+                    + "    , r.[to] "
+                    + "    , r.[reason] "
+                    + "    , r.[status] "
+                    + "    , r.[leave_type] "
+                    + "    , r.[processed_by] "
+                    + "    , e_processed.ename as [processed_name] "
+                    + "    , r.[cancel_note] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e_created ON e_created.eid = r.created_by "
+                    + "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by "
+                    + "WHERE r.rid = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();
@@ -218,6 +223,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
                 rfl.setReason(rs.getString("reason"));
                 rfl.setStatus(rs.getInt("status"));
                 rfl.setLeaveType(rs.getString("leave_type"));
+                rfl.setCancelNote(rs.getString("cancel_note"));
 
                 // Lấy đối tượng Employee đầy đủ
                 Employee created_by = new Employee();
@@ -245,9 +251,9 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public void insert(RequestForLeave model) {
         PreparedStatement stm = null;
         try {
-            String sql =
-                    "INSERT INTO [RequestForLeave] ([created_by], [created_time], [from], [to], [reason], [status], [leave_type]) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql
+                    = "INSERT INTO [RequestForLeave] ([created_by], [created_time], [from], [to], [reason], [status], [leave_type]) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
             // Use RETURN_GENERATED_KEYS to get the auto-generated ID
             stm = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS);
             stm.setInt(1, model.getCreated_by().getId());
@@ -284,8 +290,8 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     @Override
     public void update(RequestForLeave model) {
         try {
-            String sql =
-                    "UPDATE [RequestForLeave] SET [status] = ?, [processed_by] = ? WHERE [rid] = ?";
+            String sql
+                    = "UPDATE [RequestForLeave] SET [status] = ?, [processed_by] = ? WHERE [rid] = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, model.getStatus());
 
@@ -324,8 +330,8 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public void approveRequest(int rid, int processedBy) throws SQLException {
         PreparedStatement stm = null;
         try {
-            String sql =
-                    "UPDATE [RequestForLeave] SET [status] = 1, [processed_by] = ? WHERE [rid] = ?";
+            String sql
+                    = "UPDATE [RequestForLeave] SET [status] = 1, [processed_by] = ? WHERE [rid] = ?";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, processedBy);
             stm.setInt(2, rid);
@@ -352,8 +358,8 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public void rejectRequest(int rid, int processedBy) throws SQLException {
         PreparedStatement stm = null;
         try {
-            String sql =
-                    "UPDATE [RequestForLeave] SET [status] = 2, [processed_by] = ? WHERE [rid] = ?";
+            String sql
+                    = "UPDATE [RequestForLeave] SET [status] = 2, [processed_by] = ? WHERE [rid] = ?";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, processedBy);
             stm.setInt(2, rid);
@@ -381,14 +387,14 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public ArrayList<RequestForLeave> getByStatus(int status) {
         ArrayList<RequestForLeave> rfls = new ArrayList<>();
         try {
-            String sql =
-                    "SELECT " +
-                    "    r.[rid], r.[created_by], e_created.ename as [created_name], r.[created_time], " +
-                    "    r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], e_processed.ename as [processed_name] " +
-                    "FROM [RequestForLeave] r " +
-                    "INNER JOIN Employee e_created ON e_created.eid = r.created_by " +
-                    "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by " +
-                    "WHERE r.[status] = ? ORDER BY r.created_time DESC";
+            String sql
+                    = "SELECT "
+                    + "    r.[rid], r.[created_by], e_created.ename as [created_name], r.[created_time], "
+                    + "    r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], e_processed.ename as [processed_name] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e_created ON e_created.eid = r.created_by "
+                    + "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by "
+                    + "WHERE r.[status] = ? ORDER BY r.created_time DESC";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, status);
             ResultSet rs = stm.executeQuery();
@@ -429,14 +435,14 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     public ArrayList<RequestForLeave> getByEmployee(int employeeId) {
         ArrayList<RequestForLeave> rfls = new ArrayList<>();
         try {
-            String sql =
-                    "SELECT " +
-                    "    r.[rid], r.[created_by], e_created.ename as [created_name], r.[created_time], " +
-                    "    r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], e_processed.ename as [processed_name] " +
-                    "FROM [RequestForLeave] r " +
-                    "INNER JOIN Employee e_created ON e_created.eid = r.created_by " +
-                    "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by " +
-                    "WHERE r.[created_by] = ? ORDER BY r.created_time DESC";
+            String sql
+                    = "SELECT "
+                    + "    r.[rid], r.[created_by], e_created.ename as [created_name], r.[created_time], "
+                    + "    r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], e_processed.ename as [processed_name], r.[cancel_note] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e_created ON e_created.eid = r.created_by "
+                    + "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by "
+                    + "WHERE r.[created_by] = ? ORDER BY r.created_time DESC";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, employeeId);
             ResultSet rs = stm.executeQuery();
@@ -450,6 +456,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
                 rfl.setReason(rs.getString("reason"));
                 rfl.setStatus(rs.getInt("status"));
                 rfl.setLeaveType(rs.getString("leave_type"));
+                rfl.setCancelNote(rs.getString("cancel_note"));
 
                 Employee created_by = new Employee();
                 created_by.setId(rs.getInt("created_by"));
@@ -465,7 +472,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
 
                 rfls.add(rfl);
             }
-            
+
         } catch (SQLException ex) {
             Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -473,7 +480,120 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         }
         return rfls;
     }
-    
+
+    /**
+     * COUNT: Đếm tổng số requests của một employee cụ thể
+     */
+    public int countByEmployee(int employeeId) {
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        try {
+            String sql = "SELECT COUNT(*) as total "
+                    + "FROM [RequestForLeave] r "
+                    + "WHERE r.[created_by] = ?";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, employeeId);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            if (stm != null) {
+                try {
+                    stm.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            // KHÔNG đóng connection ở đây - để controller đóng sau khi dùng xong
+        }
+        return 0;
+    }
+
+    /**
+     * Lấy requests của một employee cụ thể với pagination (SQL Server)
+     *
+     * @param employeeId Employee ID
+     * @param offset Số records bỏ qua
+     * @param fetch Số records lấy về
+     */
+    public ArrayList<RequestForLeave> getByEmployeePaginated(int employeeId, int offset, int fetch) {
+        ArrayList<RequestForLeave> rfls = new ArrayList<>();
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        try {
+            String sql
+                    = "SELECT "
+                    + "    r.[rid], r.[created_by], e_created.ename as [created_name], r.[created_time], "
+                    + "    r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], e_processed.ename as [processed_name], r.[cancel_note] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e_created ON e_created.eid = r.created_by "
+                    + "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by "
+                    + "WHERE r.[created_by] = ? "
+                    + "ORDER BY r.created_time DESC "
+                    + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, employeeId);
+            stm.setInt(2, offset);
+            stm.setInt(3, fetch);
+            rs = stm.executeQuery();
+
+            while (rs.next()) {
+                RequestForLeave rfl = new RequestForLeave();
+                rfl.setId(rs.getInt("rid"));
+                rfl.setCreated_time(rs.getTimestamp("created_time"));
+                rfl.setFrom(rs.getDate("from"));
+                rfl.setTo(rs.getDate("to"));
+                rfl.setReason(rs.getString("reason"));
+                rfl.setStatus(rs.getInt("status"));
+                rfl.setLeaveType(rs.getString("leave_type"));
+                rfl.setCancelNote(rs.getString("cancel_note"));
+
+                Employee created_by = new Employee();
+                created_by.setId(rs.getInt("created_by"));
+                created_by.setName(rs.getString("created_name"));
+                rfl.setCreated_by(created_by);
+
+                if (rs.getObject("processed_by") != null) {
+                    Employee processed_by = new Employee();
+                    processed_by.setId(rs.getInt("processed_by"));
+                    processed_by.setName(rs.getString("processed_name"));
+                    rfl.setProcessed_by(processed_by);
+                }
+
+                rfls.add(rfl);
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            if (stm != null) {
+                try {
+                    stm.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            // KHÔNG đóng connection ở đây - để controller đóng sau khi dùng xong
+        }
+        return rfls;
+    }
 
     /**
      * COUNT: Đếm tổng số requests của employee và subordinates
@@ -482,14 +602,14 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         PreparedStatement stm = null;
         ResultSet rs = null;
         try {
-            String sql =
-                    "WITH Org AS (" +
-                    "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? " +
-                    "    UNION ALL " +
-                    "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid " +
-                    ") " +
-                    "SELECT COUNT(*) as total " +
-                    "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by";
+            String sql
+                    = "WITH Org AS ("
+                    + "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? "
+                    + "    UNION ALL "
+                    + "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid "
+                    + ") "
+                    + "SELECT COUNT(*) as total "
+                    + "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, eid);
             rs = stm.executeQuery();
@@ -521,6 +641,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
 
     /**
      * Lấy requests của employee và subordinates với pagination (SQL Server)
+     *
      * @param eid Employee ID
      * @param offset Số records bỏ qua
      * @param fetch Số records lấy về
@@ -530,28 +651,29 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         PreparedStatement stm = null;
         ResultSet rs = null;
         try {
-            String sql =
-                    "WITH Org AS (" +
-                    "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? " +
-                    "    UNION ALL " +
-                    "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid " +
-                    ") " +
-                    "SELECT " +
-                    "      r.[rid] " +
-                    "    , r.[created_by] " +
-                    "    , e.ename as [created_name] " +
-                    "    , r.[created_time] " +
-                    "    , r.[from] " +
-                    "    , r.[to] " +
-                    "    , r.[reason] " +
-                    "    , r.[status] " +
-                    "    , r.[leave_type] " +
-                    "    , r.[processed_by] " +
-                    "    , p.ename as [processed_name] " +
-                    "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by " +
-                    "LEFT JOIN Employee p ON p.eid = r.processed_by " +
-                    "ORDER BY r.created_time DESC " +
-                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            String sql
+                    = "WITH Org AS ("
+                    + "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? "
+                    + "    UNION ALL "
+                    + "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid "
+                    + ") "
+                    + "SELECT "
+                    + "      r.[rid] "
+                    + "    , r.[created_by] "
+                    + "    , e.ename as [created_name] "
+                    + "    , r.[created_time] "
+                    + "    , r.[from] "
+                    + "    , r.[to] "
+                    + "    , r.[reason] "
+                    + "    , r.[status] "
+                    + "    , r.[leave_type] "
+                    + "    , r.[processed_by] "
+                    + "    , p.ename as [processed_name] "
+                    + "    , r.[cancel_note] "
+                    + "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by "
+                    + "LEFT JOIN Employee p ON p.eid = r.processed_by "
+                    + "ORDER BY r.created_time DESC "
+                    + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, eid);
             stm.setInt(2, offset);
@@ -566,6 +688,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
                 rfl.setReason(rs.getString("reason"));
                 rfl.setStatus(rs.getInt("status"));
                 rfl.setLeaveType(rs.getString("leave_type"));
+                rfl.setCancelNote(rs.getString("cancel_note"));
 
                 Employee created_by = new Employee();
                 created_by.setId(rs.getInt("created_by"));
@@ -607,18 +730,18 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         }
         return rfls;
     }
-    
-        /**
+
+    /**
      * COUNT: Đếm tổng số requests theo status
      */
     public int countByStatus(int status) {
         PreparedStatement stm = null;
         ResultSet rs = null;
         try {
-            String sql =
-                    "SELECT COUNT(*) as total " +
-                    "FROM [RequestForLeave] r " +
-                    "WHERE r.[status] = ?";
+            String sql
+                    = "SELECT COUNT(*) as total "
+                    + "FROM [RequestForLeave] r "
+                    + "WHERE r.[status] = ?";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, status);
             rs = stm.executeQuery();
@@ -648,6 +771,7 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
 
     /**
      * Lấy requests theo status với pagination (SQL Server) - cho IT Head
+     *
      * @param status Status code (0=pending, 1=approved, 2=rejected)
      * @param offset Số records bỏ qua
      * @param fetch Số records lấy về
@@ -657,16 +781,16 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         PreparedStatement stm = null;
         ResultSet rs = null;
         try {
-            String sql =
-                    "SELECT " +
-                    "    r.[rid], r.[created_by], e_created.ename as [created_name], r.[created_time], " +
-                    "    r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], e_processed.ename as [processed_name] " +
-                    "FROM [RequestForLeave] r " +
-                    "INNER JOIN Employee e_created ON e_created.eid = r.created_by " +
-                    "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by " +
-                    "WHERE r.[status] = ? " +
-                    "ORDER BY r.created_time DESC " +
-                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            String sql
+                    = "SELECT "
+                    + "    r.[rid], r.[created_by], e_created.ename as [created_name], r.[created_time], "
+                    + "    r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], e_processed.ename as [processed_name] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e_created ON e_created.eid = r.created_by "
+                    + "LEFT JOIN Employee e_processed ON e_processed.eid = r.processed_by "
+                    + "WHERE r.[status] = ? "
+                    + "ORDER BY r.created_time DESC "
+                    + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, status);
             stm.setInt(2, offset);
@@ -719,21 +843,22 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     }
 
     /**
-     * COUNT: Đếm số pending requests từ subordinates (không bao gồm của chính mình)
+     * COUNT: Đếm số pending requests từ subordinates (không bao gồm của chính
+     * mình)
      */
     public int countPendingBySubordinates(int eid) {
         PreparedStatement stm = null;
         ResultSet rs = null;
         try {
-            String sql =
-                    "WITH Org AS (" +
-                    "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? " +
-                    "    UNION ALL " +
-                    "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid " +
-                    ") " +
-                    "SELECT COUNT(*) as total " +
-                    "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by " +
-                    "WHERE r.[status] = 0 AND r.[created_by] != ?";
+            String sql
+                    = "WITH Org AS ("
+                    + "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? "
+                    + "    UNION ALL "
+                    + "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid "
+                    + ") "
+                    + "SELECT COUNT(*) as total "
+                    + "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by "
+                    + "WHERE r.[status] = 0 AND r.[created_by] != ?";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, eid);
             stm.setInt(2, eid);
@@ -763,7 +888,9 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     }
 
     /**
-     * Lấy pending requests từ subordinates với pagination (SQL Server) - không bao gồm của chính mình
+     * Lấy pending requests từ subordinates với pagination (SQL Server) - không
+     * bao gồm của chính mình
+     *
      * @param eid Employee ID của supervisor
      * @param offset Số records bỏ qua
      * @param fetch Số records lấy về
@@ -773,29 +900,29 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         PreparedStatement stm = null;
         ResultSet rs = null;
         try {
-            String sql =
-                    "WITH Org AS (" +
-                    "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? " +
-                    "    UNION ALL " +
-                    "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid " +
-                    ") " +
-                    "SELECT " +
-                    "      r.[rid] " +
-                    "    , r.[created_by] " +
-                    "    , e.ename as [created_name] " +
-                    "    , r.[created_time] " +
-                    "    , r.[from] " +
-                    "    , r.[to] " +
-                    "    , r.[reason] " +
-                    "    , r.[status] " +
-                    "    , r.[leave_type] " +
-                    "    , r.[processed_by] " +
-                    "    , p.ename as [processed_name] " +
-                    "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by " +
-                    "LEFT JOIN Employee p ON p.eid = r.processed_by " +
-                    "WHERE r.[status] = 0 AND r.[created_by] != ? " +
-                    "ORDER BY r.created_time DESC " +
-                    "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            String sql
+                    = "WITH Org AS ("
+                    + "    SELECT *, 0 as lvl FROM Employee e WHERE e.eid = ? "
+                    + "    UNION ALL "
+                    + "    SELECT c.*, o.lvl + 1 as lvl FROM Employee c JOIN Org o ON c.supervisorid = o.eid "
+                    + ") "
+                    + "SELECT "
+                    + "      r.[rid] "
+                    + "    , r.[created_by] "
+                    + "    , e.ename as [created_name] "
+                    + "    , r.[created_time] "
+                    + "    , r.[from] "
+                    + "    , r.[to] "
+                    + "    , r.[reason] "
+                    + "    , r.[status] "
+                    + "    , r.[leave_type] "
+                    + "    , r.[processed_by] "
+                    + "    , p.ename as [processed_name] "
+                    + "FROM Org e INNER JOIN [RequestForLeave] r ON e.eid = r.created_by "
+                    + "LEFT JOIN Employee p ON p.eid = r.processed_by "
+                    + "WHERE r.[status] = 0 AND r.[created_by] != ? "
+                    + "ORDER BY r.created_time DESC "
+                    + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, eid);
             stm.setInt(2, eid);
@@ -846,7 +973,107 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
         return rfls;
     }
 
+    // Method getById()
+    public RequestForLeave getById(int rid) {
+        RequestForLeave rfl = null;
+        try {
+            String sql = "SELECT r.[rid], r.[created_by], e.ename as [created_name], r.[created_time], "
+                    + "r.[from], r.[to], r.[reason], r.[status], r.[leave_type], r.[processed_by], "
+                    + "p.ename as [processed_name], r.[cancel_note] "
+                    + "FROM [RequestForLeave] r "
+                    + "INNER JOIN Employee e ON e.eid = r.created_by "
+                    + "LEFT JOIN Employee p ON p.eid = r.processed_by "
+                    + "WHERE r.[rid] = ?";
+            PreparedStatement stm = connection.prepareStatement(sql);
+            stm.setInt(1, rid);
+            ResultSet rs = stm.executeQuery();
+
+            if (rs.next()) {
+                rfl = new RequestForLeave();
+                rfl.setId(rs.getInt("rid"));
+                rfl.setCreated_time(rs.getTimestamp("created_time"));
+                rfl.setFrom(rs.getDate("from"));
+                rfl.setTo(rs.getDate("to"));
+                rfl.setReason(rs.getString("reason"));
+                rfl.setStatus(rs.getInt("status"));
+                rfl.setLeaveType(rs.getString("leave_type"));
+                rfl.setCancelNote(rs.getString("cancel_note"));
+
+                Employee created_by = new Employee();
+                created_by.setId(rs.getInt("created_by"));
+                created_by.setName(rs.getString("created_name"));
+                rfl.setCreated_by(created_by);
+
+                int processed_by_id = rs.getInt("processed_by");
+                if (processed_by_id != 0) {
+                    Employee processed_by = new Employee();
+                    processed_by.setId(rs.getInt("processed_by"));
+                    processed_by.setName(rs.getString("processed_name"));
+                    rfl.setProcessed_by(processed_by);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            closeConnection();
+        }
+        return rfl;
+    }
+
+// Method cancelRequest()
+    public boolean cancelRequest(int rid, int cancelledBy, String cancelNote) {
+        try {
+            String sql = "UPDATE [RequestForLeave] SET [status] = 3, [processed_by] = ?, [cancel_note] = ? WHERE [rid] = ?";
+            PreparedStatement stm = connection.prepareStatement(sql);
+            stm.setInt(1, cancelledBy);
+            stm.setString(2, cancelNote != null ? cancelNote : "");
+            stm.setInt(3, rid);
+            int rowsAffected = stm.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } finally {
+            closeConnection();
+        }
+    }
     
+    // Overload method để tương thích với code cũ (không có cancelNote)
+    public boolean cancelRequest(int rid, int cancelledBy) {
+        return cancelRequest(rid, cancelledBy, "");
+    }
+
+    /**
+     * Tự động reject các đơn pending đã quá ngày nghỉ (ngày hiện tại > ngày kết thúc nghỉ)
+     * @return Số lượng đơn đã được tự động reject
+     */
+    public int autoRejectExpiredPendingRequests() {
+        PreparedStatement stm = null;
+        try {
+            // Reject các đơn pending mà ngày kết thúc nghỉ (to) < ngày hiện tại
+            String sql = "UPDATE [RequestForLeave] " +
+                         "SET [status] = 2, [processed_by] = NULL " +
+                         "WHERE [status] = 0 " +
+                         "AND [to] < CAST(GETDATE() AS DATE)";
+            
+            stm = connection.prepareStatement(sql);
+            int rowsAffected = stm.executeUpdate();
+            return rowsAffected;
+        } catch (SQLException ex) {
+            Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.SEVERE, "Error auto-rejecting expired pending requests", ex);
+            return 0;
+        } finally {
+            if (stm != null) {
+                try {
+                    stm.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(RequestForLeaveDBContex.class.getName()).log(Level.WARNING, null, ex);
+                }
+            }
+            // KHÔNG đóng connection ở đây - để controller đóng sau khi dùng xong
+        }
+    }
+
     /**
      * Đóng connection - gọi từ controller sau khi hoàn thành tất cả operations
      */
@@ -855,4 +1082,3 @@ public class RequestForLeaveDBContex extends DBContext<RequestForLeave> {
     }
 
 }
-

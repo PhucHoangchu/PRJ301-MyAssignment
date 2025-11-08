@@ -23,6 +23,7 @@ public class RequestForLeave extends BaseModel {
     private int status;
     private Employee processed_by;
     private String leaveType;
+    private String cancelNote;
 
     public Employee getCreated_by() {
         return created_by;
@@ -69,7 +70,7 @@ public class RequestForLeave extends BaseModel {
     }
 
     public void setStatus(int status) {
-        this.status = status; 
+        this.status = status;
     }
 
     public Employee getProcessed_by() {
@@ -85,7 +86,7 @@ public class RequestForLeave extends BaseModel {
     }
 
     public boolean isPending() {
-        return status == 0; 
+        return status == 0;
     }
 
     public boolean isApproved() {
@@ -94,6 +95,54 @@ public class RequestForLeave extends BaseModel {
 
     public boolean isRejected() {
         return status == 2;
+    }
+    // Thêm vào RequestForLeave.java sau method isRejected()
+
+    public boolean isCancelled() {
+        return status == 3;
+    }
+
+    public boolean isOwnedBy(int employeeId) {
+        return created_by != null && created_by.getId() == employeeId;
+    }
+
+    public boolean canBeCancelled(int currentEmployeeId, boolean isITHead, dal.EmployeeDBContext empDB) {
+        // 1. Thằng A (IT Head): Có thể hủy toàn bộ (trừ cancelled và rejected)
+        if (isITHead) {
+            return !isCancelled() && !isRejected();
+        }
+        
+        // 2. Đã bị hủy hoặc từ chối thì không thể hủy
+        if (isCancelled() || isRejected()) {
+            return false;
+        }
+        
+        // 3. Kiểm tra trạng thái đơn
+        if (isPending()) {
+            // In progress: Chỉ owner mới hủy được
+            return isOwnedBy(currentEmployeeId);
+        }
+        
+        if (isApproved()) {
+            // Approved: Chỉ supervisor trực tiếp mới hủy được
+            if (isOwnedBy(currentEmployeeId)) {
+                // Owner không thể hủy đơn đã approved của chính mình
+                return false;
+            }
+            
+            // Kiểm tra xem currentEmployee có phải supervisor của owner không
+            if (created_by != null && empDB != null) {
+                return empDB.isSupervisorOf(currentEmployeeId, created_by.getId());
+            }
+            return false;
+        }
+        
+        return false;
+    }
+    
+    // Overload method để tương thích với code cũ (không dùng empDB)
+    public boolean canBeCancelled(int currentEmployeeId, boolean isITHead) {
+        return canBeCancelled(currentEmployeeId, isITHead, null);
     }
 
     public String getLeaveType() {
@@ -109,23 +158,31 @@ public class RequestForLeave extends BaseModel {
             return "Nghỉ phép năm";
         }
         switch (leaveType.toLowerCase()) {
-            case "annual": 
+            case "annual":
                 return "Nghỉ phép năm";
-            case "sick": 
+            case "sick":
                 return "Nghỉ ốm";
-            case "personal": 
+            case "personal":
                 return "Việc riêng";
-            case "unpaid": 
+            case "unpaid":
                 return "Nghỉ không lương";
-            case "maternity": 
+            case "maternity":
                 return "Nghỉ thai sản";
-            case "paternity": 
+            case "paternity":
                 return "Nghỉ chăm sóc con";
-            case "other": 
+            case "other":
                 return "Khác";
-            default: 
+            default:
                 return "Nghỉ phép năm";
         }
+    }
+
+    public String getCancelNote() {
+        return cancelNote;
+    }
+
+    public void setCancelNote(String cancelNote) {
+        this.cancelNote = cancelNote;
     }
 
 }

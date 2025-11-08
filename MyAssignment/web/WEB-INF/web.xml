@@ -63,6 +63,24 @@
         <servlet-name>ReviewRequestController</servlet-name>
         <url-pattern>/request/review</url-pattern>
     </servlet-mapping>
+    <!-- Thêm vào sau ReviewRequestController mapping -->
+    <servlet>
+        <servlet-name>CancelRequestController</servlet-name>
+        <servlet-class>controller.request.CancelController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CancelRequestController</servlet-name>
+        <url-pattern>/request/cancel</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>ViewRequestController</servlet-name>
+        <servlet-class>controller.request.ViewController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ViewRequestController</servlet-name>
+        <url-pattern>/request/view</url-pattern>
+    </servlet-mapping>
     
     <!-- Division Servlet Mapping -->
     <servlet>

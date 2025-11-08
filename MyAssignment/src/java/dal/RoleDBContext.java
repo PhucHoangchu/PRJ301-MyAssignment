@@ -20,22 +20,22 @@ public class RoleDBContext extends DBContext<Role> {
     public ArrayList<Role> getByUserId(int id) {
         ArrayList<Role> roles = new ArrayList<>();
         try {
-            String sql =
-                    "SELECT r.rid, r.rname, f.fid, f.url " +
-                    "FROM [User] u INNER JOIN [UserRole] ur ON u.uid = ur.uid " +
-                    "INNER JOIN [Role] r ON r.rid = ur.rid " +
-                    "INNER JOIN [RoleFeature] rf ON rf.rid = r.rid " +
-                    "INNER JOIN [Feature] f ON f.fid = rf.fid " +
-                    "WHERE u.uid = ?";
+            String sql
+                    = "SELECT r.rid, r.rname, f.fid, f.url "
+                    + "FROM [User] u INNER JOIN [UserRole] ur ON u.uid = ur.uid "
+                    + "INNER JOIN [Role] r ON r.rid = ur.rid "
+                    + "INNER JOIN [RoleFeature] rf ON rf.rid = r.rid "
+                    + "INNER JOIN [Feature] f ON f.fid = rf.fid "
+                    + "WHERE u.uid = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();
-            
+
             Role current = new Role();
             current.setId(-1);
-            while (rs.next()) {                
+            while (rs.next()) {
                 int rid = rs.getInt("rid");
-                if(rid != current.getId()){
+                if (rid != current.getId()) {
                     current = new Role();
                     current.setId(rid);
                     current.setName(rs.getString("rname"));
@@ -48,7 +48,7 @@ public class RoleDBContext extends DBContext<Role> {
             }
         } catch (SQLException ex) {
             Logger.getLogger(RoleDBContext.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
+        } finally {
             closeConnection();
         }
         return roles;
@@ -58,12 +58,12 @@ public class RoleDBContext extends DBContext<Role> {
     public ArrayList<Role> list() {
         ArrayList<Role> roles = new ArrayList<>();
         try {
-            String sql =
-                    "SELECT r.rid, r.rname, f.fid, f.url " +
-                    "FROM [Role] r " +
-                    "LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid " +
-                    "LEFT JOIN [Feature] f ON f.fid = rf.fid " +
-                    "ORDER BY r.rid";
+            String sql
+                    = "SELECT r.rid, r.rname, f.fid, f.url "
+                    + "FROM [Role] r "
+                    + "LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid "
+                    + "LEFT JOIN [Feature] f ON f.fid = rf.fid "
+                    + "ORDER BY r.rid";
             PreparedStatement stm = connection.prepareStatement(sql);
             ResultSet rs = stm.executeQuery();
             Role current = null;
@@ -75,8 +75,8 @@ public class RoleDBContext extends DBContext<Role> {
                     current.setName(rs.getString("rname"));
                     roles.add(current);
                 }
-                
-                if(rs.getObject("fid") != null) {
+
+                if (rs.getObject("fid") != null) {
                     Feature f = new Feature();
                     f.setId(rs.getInt("fid"));
                     f.setUrl(rs.getString("url"));
@@ -94,12 +94,12 @@ public class RoleDBContext extends DBContext<Role> {
     @Override
     public Role get(int id) {
         try {
-            String sql =
-                    "SELECT r.rid, r.rname, f.fid, f.url " +
-                    "FROM [Role] r " +
-                    "LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid " +
-                    "LEFT JOIN [Feature] f ON f.fid = rf.fid " +
-                    "WHERE r.rid = ?";
+            String sql
+                    = "SELECT r.rid, r.rname, f.fid, f.url "
+                    + "FROM [Role] r "
+                    + "LEFT JOIN [RoleFeature] rf ON rf.rid = r.rid "
+                    + "LEFT JOIN [Feature] f ON f.fid = rf.fid "
+                    + "WHERE r.rid = ?";
             PreparedStatement stm = connection.prepareStatement(sql);
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();
@@ -110,7 +110,7 @@ public class RoleDBContext extends DBContext<Role> {
                     current.setId(rs.getInt("rid"));
                     current.setName(rs.getString("rname"));
                 }
-                if(rs.getObject("fid") != null) {
+                if (rs.getObject("fid") != null) {
                     Feature f = new Feature();
                     f.setId(rs.getInt("fid"));
                     f.setUrl(rs.getString("url"));
@@ -161,12 +161,12 @@ public class RoleDBContext extends DBContext<Role> {
         try {
             // Phải xóa các bảng tham chiếu trước
             connection.setAutoCommit(false);
-            
+
             String sqlFeatures = "DELETE FROM [RoleFeature] WHERE rid = ?";
             PreparedStatement stmFeatures = connection.prepareStatement(sqlFeatures);
             stmFeatures.setInt(1, model.getId());
             stmFeatures.executeUpdate();
-            
+
             String sqlUsers = "DELETE FROM [UserRole] WHERE rid = ?";
             PreparedStatement stmUsers = connection.prepareStatement(sqlUsers);
             stmUsers.setInt(1, model.getId());
@@ -176,7 +176,7 @@ public class RoleDBContext extends DBContext<Role> {
             PreparedStatement stmRole = connection.prepareStatement(sqlRole);
             stmRole.setInt(1, model.getId());
             stmRole.executeUpdate();
-            
+
             connection.commit();
         } catch (SQLException ex) {
             Logger.getLogger(RoleDBContext.class.getName()).log(Level.SEVERE, null, ex);
@@ -193,5 +193,26 @@ public class RoleDBContext extends DBContext<Role> {
             }
             closeConnection();
         }
+    }
+
+    // Thêm vào RoleDBContext.java sau method delete()
+    public boolean hasRole(int uid, String roleName) {
+        try {
+            String sql = "SELECT COUNT(*) FROM UserRole ur "
+                    + "INNER JOIN Role r ON ur.rid = r.rid "
+                    + "WHERE ur.uid = ? AND r.rname = ?";
+            PreparedStatement stm = connection.prepareStatement(sql);
+            stm.setInt(1, uid);
+            stm.setString(2, roleName);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RoleDBContext.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            closeConnection();
+        }
+        return false;
     }
 }
